@@ -10,7 +10,22 @@
       "Bash(git push *)",
       "Bash(pip install *)",
       "Bash(pip3 install *)",
-      "Bash(python3 -m pip install -q -r /home/luba/tv-shows-platform/backend/requirements.txt)"
+      "Bash(python3 -m pip install -q -r /home/luba/tv-shows-platform/backend/requirements.txt)",
+      "Bash(python3 -m ensurepip --user)",
+      "Bash(apt-get update *)",
+      "Bash(cat /tmp/server.log)",
+      "Read(//tmp/**)",
+      "Bash(python3 -c \"import main\")",
+      "Bash(curl -s http://localhost:8000/)",
+      "Bash(python3 -c \"import urllib.request; r = urllib.request.urlopen\\('http://localhost:8000/'\\); print\\(r.status\\)\")",
+      "Bash(/home/luba/.local/bin/pytest test_main.py -v)",
+      "Bash(pkill -9 -f uvicorn)",
+      "Bash(/home/luba/.local/bin/uvicorn main:app --reload --host 0.0.0.0 --port 8000)",
+      "Bash(echo \"Server started with PID: $!\")",
+      "Bash(rm -f shows.db && /home/luba/.local/bin/uvicorn main:app --reload --host 0.0.0.0 --port 8000 > /tmp/server.log 2>&1 & *)"
+    ],
+    "additionalDirectories": [
+      "/tmp"
     ]
   }
 }
