@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TV Shows Manager</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #555;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #5568d3;
+        }
+
+        .episodes-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .episode-card {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            border-radius: 8px;
+            transition: transform 0.2s;
+        }
+
+        .episode-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .show-name {
+            font-size: 1.2em;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .episode-info {
+            color: #666;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+
+        .episode-info strong {
+            color: #333;
+        }
+
+        .release-date {
+            color: #667eea;
+            font-weight: 600;
+            margin-top: 12px;
+            font-size: 0.9em;
+        }
+
+        .remove-btn {
+            width: auto;
+            padding: 6px 12px;
+            background: #dc3545;
+            font-size: 0.8em;
+            margin-top: 12px;
+        }
+
+        .remove-btn:hover {
+            background: #c82333;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #999;
+            padding: 40px 20px;
+            grid-column: 1 / -1;
+        }
+
+        .followed-shows {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .followed-shows h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .show-list {
+            list-style: none;
+        }
+
+        .show-list li {
+            padding: 10px;
+            background: white;
+            margin-bottom: 8px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .show-list strong {
+            color: #667eea;
+        }
+
+        .unfollow-btn {
+            padding: 4px 8px;
+            font-size: 0.75em;
+            background: #dc3545;
+        }
+
+        .loading {
+            display: inline-block;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .error {
+            color: #dc3545;
+            padding: 12px;
+            background: #f8d7da;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+
+        .success {
+            color: #155724;
+            padding: 12px;
+            background: #d4edda;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+
+        .autocomplete-container {
+            position: relative;
+        }
+
+        .autocomplete-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            max-height: 250px;
+            overflow-y: auto;
+            z-index: 10;
+            display: none;
+        }
+
+        .autocomplete-suggestions.active {
+            display: block;
+        }
+
+        .autocomplete-suggestion {
+            padding: 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.2s;
+        }
+
+        .autocomplete-suggestion:hover {
+            background: #f8f9fa;
+        }
+
+        .autocomplete-suggestion:last-child {
+            border-bottom: none;
+        }
+
+        .suggestion-title {
+            color: #333;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .suggestion-year {
+            color: #999;
+            font-size: 0.85em;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .episodes-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📺 TV Shows Manager</h1>
+            <p>Keep track of your favorite shows and upcoming episodes</p>
+        </header>
+
+        <div class="content">
+            <!-- Add Show Form -->
+            <div class="card">
+                <h2>Add a Show</h2>
+                <form id="addShowForm">
+                    <div class="form-group">
+                        <label for="showName">Show Name</label>
+                        <div class="autocomplete-container">
+                            <input type="text" id="showName" placeholder="e.g., Breaking Bad, The Office" required>
+                            <div class="autocomplete-suggestions" id="suggestions"></div>
+                        </div>
+                    </div>
+                    <button type="submit">Search & Add</button>
+                    <div id="addMessage"></div>
+                </form>
+
+                <!-- Followed Shows List -->
+                <div class="followed-shows">
+                    <h3 id="followingCount">Following (0)</h3>
+                    <ul class="show-list" id="followedList">
+                        <li style="color: #999;">No shows yet</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Upcoming Episodes -->
+            <div class="card">
+                <h2>Upcoming Episodes</h2>
+                <div class="episodes-container" id="episodesList">
+                    <div class="empty-state">
+                        <p>No upcoming episodes. Add a show to get started!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API = '/api';
+        let followedShows = [];
+
+        function formatDate(dateString) {
+            if (!dateString) return 'TBA';
+            return new Date(dateString).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+
+        function renderEpisodes() {
+            const episodesList = document.getElementById('episodesList');
+
+            if (followedShows.length === 0) {
+                episodesList.innerHTML = '<div class="empty-state"><p>No upcoming episodes. Add a show to get started!</p></div>';
+                return;
+            }
+
+            const sorted = [...followedShows].sort((a, b) => {
+                const dateA = a.air_date ? new Date(a.air_date) : new Date(0);
+                const dateB = b.air_date ? new Date(b.air_date) : new Date(0);
+                return dateA - dateB;
+            });
+
+            episodesList.innerHTML = sorted.map(show => `
+                <div class="episode-card">
+                    <div class="show-name">${show.show_name}</div>
+                    <div class="episode-info">${show.episode_name}</div>
+                    <div class="episode-info">Season <strong>${show.season}</strong> Episode <strong>${show.number}</strong></div>
+                    <div class="release-date">📅 ${formatDate(show.air_date)}</div>
+                    <button class="remove-btn" onclick="removeShow(${show.id})">Remove Show</button>
+                </div>
+            `).join('');
+        }
+
+        function renderFollowedList() {
+            const followedList = document.getElementById('followedList');
+            const count = document.getElementById('followingCount');
+
+            count.textContent = `Following (${followedShows.length})`;
+
+            if (followedShows.length === 0) {
+                followedList.innerHTML = '<li style="color: #999;">No shows yet</li>';
+                return;
+            }
+            followedList.innerHTML = followedShows.map(show => `
+                <li>
+                    <strong>${show.show_name}</strong>
+                    <button class="unfollow-btn" onclick="removeShow(${show.id})">Unfollow</button>
+                </li>
+            `).join('');
+        }
+
+        let autocompleteTimeout;
+        const showNameInput = document.getElementById('showName');
+        const suggestionsDiv = document.getElementById('suggestions');
+
+        showNameInput.addEventListener('input', async (e) => {
+            const query = e.target.value.trim();
+
+            clearTimeout(autocompleteTimeout);
+
+            if (query.length < 2) {
+                suggestionsDiv.classList.remove('active');
+                return;
+            }
+
+            autocompleteTimeout = setTimeout(async () => {
+                try {
+                    const response = await fetch(`${API}/shows/search?q=${encodeURIComponent(query)}`);
+                    if (!response.ok) throw new Error('Search failed');
+                    const results = await response.json();
+
+                    if (results.length === 0) {
+                        suggestionsDiv.innerHTML = '<div class="autocomplete-suggestion" style="color: #999;">No shows found</div>';
+                        suggestionsDiv.classList.add('active');
+                        return;
+                    }
+
+                    suggestionsDiv.innerHTML = results.map(result => `
+                        <div class="autocomplete-suggestion" data-show-id="${result.id}" data-show-name="${result.name}">
+                            <div class="suggestion-title">${result.name}</div>
+                            <div class="suggestion-year">${result.year}</div>
+                        </div>
+                    `).join('');
+
+                    suggestionsDiv.classList.add('active');
+
+                    document.querySelectorAll('.autocomplete-suggestion').forEach(suggestion => {
+                        suggestion.addEventListener('click', () => {
+                            const showName = suggestion.getAttribute('data-show-name');
+                            const showId = suggestion.getAttribute('data-show-id');
+                            showNameInput.value = showName;
+                            showNameInput.dataset.selectedShowId = showId;
+                            suggestionsDiv.classList.remove('active');
+                        });
+                    });
+
+                } catch (error) {
+                    console.log('Autocomplete error:', error);
+                    suggestionsDiv.classList.remove('active');
+                }
+            }, 300);
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.autocomplete-container')) {
+                suggestionsDiv.classList.remove('active');
+            }
+        });
+
+        document.getElementById('addShowForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const messageDiv = document.getElementById('addMessage');
+            const selectedShowId = showNameInput.dataset.selectedShowId;
+
+            if (!selectedShowId) {
+                messageDiv.innerHTML = '<div class="error">✗ Please select a show from the suggestions</div>';
+                return;
+            }
+
+            messageDiv.innerHTML = '<div class="loading">Adding show...</div>';
+            messageDiv.style.marginTop = '10px';
+
+            try {
+                const episode = await (await fetch(`${API}/shows/${selectedShowId}/next-episode`)).json();
+
+                const response = await fetch(`${API}/follows`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        tvmaze_id: selectedShowId,
+                        show_name: showNameInput.value,
+                        season: episode.season,
+                        number: episode.number,
+                        episode_name: episode.name,
+                        air_date: episode.airdate
+                    })
+                });
+
+                if (!response.ok) throw new Error('Failed to add show');
+
+                messageDiv.innerHTML = `<div class="success">✓ Added "${showNameInput.value}"</div>`;
+                showNameInput.value = '';
+                delete showNameInput.dataset.selectedShowId;
+
+                await loadFollows();
+
+                setTimeout(() => {
+                    messageDiv.innerHTML = '';
+                }, 3000);
+
+            } catch (error) {
+                messageDiv.innerHTML = `<div class="error">✗ ${error.message}</div>`;
+            }
+        });
+
+        async function removeShow(id) {
+            try {
+                const response = await fetch(`${API}/follows/${id}`, { method: 'DELETE' });
+                if (!response.ok) throw new Error('Failed to remove show');
+                await loadFollows();
+            } catch (error) {
+                console.error('Error removing show:', error);
+            }
+        }
+
+        async function loadFollows() {
+            try {
+                const response = await fetch(`${API}/follows`);
+                followedShows = await response.json();
+                renderEpisodes();
+                renderFollowedList();
+            } catch (error) {
+                console.error('Error loading follows:', error);
+            }
+        }
+
+        loadFollows();
+    </script>
+</body>
+</html>
